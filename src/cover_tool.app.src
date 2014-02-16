@@ -1,0 +1,15 @@
+{application, cover_tool,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { cover_tool_app, []}},
+  {env, [{generate_dir, "/tmp/cover_generate_dir"},
+         {analyze_app, hstdlib},
+         {analyze_interval, 1200}
+        ]}
+ ]}.

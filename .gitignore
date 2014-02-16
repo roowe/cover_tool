@@ -1,0 +1,14 @@
+.eunit/
+*.log
+*.orig
+*.svn*
+*.beam
+*.swp
+ebin/
+*.dump*
+deps/
+var/
+sh/master*
+sh/slave*
+*.so
+*.o
