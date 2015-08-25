@@ -79,7 +79,7 @@ init([]) ->
             ok
     end,
     Mods = get_analyze_modules(App),
-    CompiledModules = do_compile(Mods),
+    CompiledModules = do_compile(Mods),    
     erlang:send_after(30000, self(), auto_run_cover),
     {ok, #state{
             analyze_app = App,
@@ -176,12 +176,27 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 do_compile(Modules) ->
     lists:foldl(fun(Module, Acc) ->
-                        case cover:compile_beam(Module) of
-                            {error, Reason} ->
-                                ?WARNING("compile ~p error, reason ~p~n", [Module, Reason]),
-                                Acc;
+                        case catch Module:module_info(compile) of
+                            List when is_list(List) ->
+                                case lists:keyfind(source, 1, List) of
+                                    {_, Path} ->
+                                        case lists:suffix(".erl", Path) of
+                                            false ->
+                                                Acc;
+                                            true ->
+                                                case catch cover:compile_beam(Module) of
+                                                    {ok, Module} ->
+                                                        [Module | Acc];
+                                                    Error ->
+                                                        ?WARNING("compile ~p error, reason ~p~n", [Module, Error]),
+                                                        Acc
+                                                end
+                                        end;
+                                    false ->
+                                        Acc
+                                end;
                             _ ->
-                                [Module | Acc]
+                                Acc
                         end
                 end, [], Modules).
 
